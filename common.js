@@ -35,7 +35,7 @@ common.makeArray = function(o) {
 common.quoteText = function(s) {
     if (s == null) { return ''; }
     s = s.toString(s);
-    s = s.replace(/&/g, '&amp;');
+    s = s.replace(/&(?![A-Za-z#]\w+;)/g, '&amp;');
     s = s.replace(/</g, '&lt;');
     s = s.replace(/>/g, '&gt;');
     return s;
@@ -44,7 +44,7 @@ common.quoteText = function(s) {
 common.quoteAttr = function(s) {
     if (s == null) { return ''; }
     s = s.toString(s);
-    s = s.replace(/&/g, '&amp;');
+    s = s.replace(/&(?![A-Za-z#]\w+;)/g, '&amp;');
     s = s.replace(/</g, '&lt;');
     s = s.replace(/>/g, '&gt;');
     s = s.replace(/"/g, '&quot;');
