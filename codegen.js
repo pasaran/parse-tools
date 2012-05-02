@@ -1,49 +1,34 @@
 //  ---------------------------------------------------------------------------------------------------------------  //
-//  codegen
-//  ---------------------------------------------------------------------------------------------------------------  //
-
-//  FIXME: Сделать класс, разные инстансы для разных языков.
-
-var _templates = {};
-
+//  Codegen
 //  ---------------------------------------------------------------------------------------------------------------  //
 
 var fs_ = require('fs');
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
-//  Добавляем шаблон в хранилище.
-function addTemplate(lang, id, template) {
-    var templates = _templates[lang];
-    if (!templates) {
-        templates = _templates[lang] = {};
-    }
-
-    var items = templates[id];
-    if (!items) {
-        items = templates[id] = [];
-    }
-
-    items.push(template);
-}
-
-//  Возвращаем все шаблоны для данных lang и id.
-function getTemplates(lang, id) {
-    var templates = _templates[lang];
-    if (!templates) {
-        //  Если шаблонов еще нет, читаем их из файла.
-        templates = readTemplates(lang);
-    }
-
-    return templates[id] || [];
-}
+var Codegen = function(lang, filename) {
+    this.lang = lang;
+    this._templates = {};
+    this._readTemplates(filename);
+};
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
-//  Читаем шаблоны из соответствующего файла и складываем их в хранилище.
-function readTemplates(lang) {
+//  Добавляем шаблон в хранилище.
+Codegen.prototype._addTemplate = function(id, template) {
+    var templates = this._templates[id] || (( this._templates[id] = [] ));
+    templates.push(template);
+};
 
-    var filename = __dirname + '/../templates/' + lang + '.tmpl';
+//  Возвращаем все шаблоны для данного id.
+Codegen.prototype._getTemplate = function(id) {
+    return this._templates[id] || [];
+};
+
+//  ---------------------------------------------------------------------------------------------------------------  //
+
+//  Читаем шаблоны из файла и складываем их в хранилище.
+Codegen.prototype._readTemplates = function(filename) {
     var content = fs_.readFileSync(filename, 'utf-8');
 
     //  Удаляем комментарии -- строки, начинающиеся на //.
@@ -90,32 +75,29 @@ function readTemplates(lang) {
             .replace(/^\n+/, '')
             .replace(/\n+$/, '');
 
-        addTemplate(lang, id, {
+        this._addTemplate(id, {
             name: r[1],
             mode: r[2],
             predicate: predicate,
             body: body
         });
     }
-
-    return _templates[lang];
-
 };
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
 //  Находим подходящий шаблон, соответствующий паре name/mode. И заполняем его данными из data.
-function fillTemplate(lang, name, mode, data) {
-    var suffix = ':' + mode;
+Codegen.prototype.generate = function(name, data, mode) {
+    var suffix = ':' + (mode || '');
 
     //  Берем все шаблоны для foo:bar и для *:bar
     var templates = []
-        .concat( getTemplates( lang, name + suffix ) )
-        .concat( getTemplates( lang, '*' + suffix ) );
+        .concat( this._getTemplate(name + suffix) )
+        .concat( this._getTemplate('*' + suffix) );
 
     //  Применяем первый подходящий (вернувший что-нибудь) шаблон.
     for (var i = 0, l = templates.length; i < l; i++) {
-        var r = doTemplate( lang, templates[i], data );
+        var r = this._doTemplate( templates[i], data );
         if (r !== undefined) { return r; }
     }
 };
@@ -123,7 +105,7 @@ function fillTemplate(lang, name, mode, data) {
 //  ---------------------------------------------------------------------------------------------------------------  //
 
 //  Собственно код, который заполняет шаблон данными.
-function doTemplate(lang, template, data) {
+Codegen.prototype._doTemplate = function(template, data) {
 
     //  Если есть предикат, проверяем его истинность.
     var predicate = template.predicate;
@@ -155,7 +137,7 @@ function doTemplate(lang, template, data) {
         line = r[2];
 
         //  Раскрываем макросы в строке.
-        line = doLine(lang, line, data);
+        line = this._doLine(line, data);
         if (!line) {
             //  Строка после раскрытия всех макросов стала пустой.
             //  Пропускаем ее и все проследующие пустые строки.
@@ -186,7 +168,7 @@ function doTemplate(lang, template, data) {
         .replace(/^\n+/, '')
         .replace(/\n+$/, '');
 
-};
+}
 
 //  Раскрываем макросы в строке. Макросы начинаются символом % и дальше более-менее похожи на xpath/jpath. Варианты:
 //
@@ -197,11 +179,11 @@ function doTemplate(lang, template, data) {
 //      %{ foo() }      -- результат data.foo().
 //      %{ Foo.bar() }  -- результат data.Foo.bar() (в предположении, что data.Foo объект).
 //
-function doLine(lang, line, data) {
+Codegen.prototype._doLine = function(line, data) {
     var r = line.split(/(\s*%{.*?})/);
 
     for (var i = 1, l = r.length; i < l; i += 2) {
-        r[i] = doMacro(lang, r[i], data);
+        r[i] = this._doMacro(r[i], data);
     }
 
     return r.join('')
@@ -211,7 +193,7 @@ function doLine(lang, line, data) {
 
 }
 
-function doMacro(lang, macro, data) {
+Codegen.prototype._doMacro = function(macro, data) {
     var r = /^(\s*)%{\s*(\.|[\w-]+(?:\.[\w-]+)*)(\(\))?\s*(?::([\w-]+))?\s*}$/.exec(macro);
 
     if (!r) {
@@ -242,7 +224,7 @@ function doMacro(lang, macro, data) {
         if (call) {
             value = value[call]();
         } else {
-            value = value.code(lang, mode);
+            value = value.code(this.lang, mode);
         }
     }
 
@@ -251,7 +233,7 @@ function doMacro(lang, macro, data) {
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
-module.exports = fillTemplate;
+module.exports = Codegen;
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
