@@ -1,3 +1,5 @@
+var path_ = require('path');
+
 //  ---------------------------------------------------------------------------------------------------------------  //
 //  Parser
 //  ---------------------------------------------------------------------------------------------------------------  //
@@ -6,14 +8,17 @@ var InputStream = require('./inputstream.js');
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
-var Parser = function(grammar, factory) {
+var Parser = function(grammar, factory, _cwd) {
     this.grammar = grammar;
     this.factory = factory;
+
+    this.cwd = _cwd || process.cwd();
 };
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
 Parser.prototype.read = function(filename) {
+    filename = path_.join(this.cwd, filename);
     this.input = new InputStream(filename);
     this.skipper = null;
     this.cache = {};
@@ -22,6 +27,10 @@ Parser.prototype.read = function(filename) {
 Parser.prototype.parse = function(filename, rule) {
     this.read(filename);
     return this.match(rule);
+};
+
+Parser.prototype.subparser = function() {
+    return new Parser( this.grammar, this.factory, path_.dirname(this.input.filename) );
 };
 
 //  ---------------------------------------------------------------------------------------------------------------  //
