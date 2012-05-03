@@ -77,7 +77,7 @@ AST.prototype.applyChildren = function(callback, params) {
     var children = this.children();
     for (var i = 0, l = children.length; i < l; i++) {
         var child = children[i];
-        if (child && typeof child === 'object') {
+        if (child instanceof AST) {
             callback(child, params);
         }
     }
@@ -88,7 +88,7 @@ AST.prototype.walkAfter = function(callback, params, pKey, pObject) {
     for (var i = 0, l = keys.length; i < l; i++) {
         var key = keys[i];
         var child = this[key];
-        if (child && typeof child === 'object') {
+        if (child instanceof AST) {
             child.walkAfter(callback, params, key, this);
         }
     }
@@ -103,7 +103,7 @@ AST.prototype.walkBefore = function(callback, params, pKey, pObject) {
     for (var i = 0, l = keys.length; i < l; i++) {
         var key = keys[i];
         var child = this[key];
-        if (child && typeof child === 'object') {
+        if (child instanceof AST) {
             child.walkBefore(callback, params, key, this);
         }
     }
