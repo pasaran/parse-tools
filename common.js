@@ -6,13 +6,15 @@ common.inherit = function(class_, base, mixins) {
     var F = function() {};
     F.prototype = base.prototype;
     var proto = class_.prototype = new F();
-    class_.prototype.constructor = class_;
 
     if (mixins) {
         for (var i = 0, l = mixins.length; i < l; i++) {
             common.extend( proto, mixins[i] );
         }
     }
+
+    proto.super_ = base.prototype;
+    proto.constructor = class_;
 };
 
 //  ---------------------------------------------------------------------------------------------------------------  //
