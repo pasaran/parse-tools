@@ -50,8 +50,9 @@ InputStream.prototype.where = function(pos) {
 
     var where = 'at (' + (pos.x + 1) + ', ' + (pos.y + 1) + ') in ' + input.filename;
 
-    var line = input.lines[pos.y] || '';
-    where += ':\n' + line + '\n' + Array(pos.x + 1).join('-') + '^';
+    //  FIXME: Эти две строчки сильно тормозят компиляцию.
+    /// var line = input.lines[pos.y] || '';
+    /// where += ':\n' + line + '\n' + Array(pos.x + 1).join('-') + '^';
 
     return where;
 };

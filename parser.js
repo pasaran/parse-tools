@@ -60,7 +60,7 @@ Parser.prototype.error = function(error) {
 Parser.prototype.backtrace = function(error) {
     error = error || this.id + ' expected';
 
-    throw new Error('PARSE ERROR: ' + error);
+    throw 'PARSE ERROR: ' + error;
 };
 
 //  ---------------------------------------------------------------------------------------------------------------  //
