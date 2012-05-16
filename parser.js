@@ -52,7 +52,7 @@ Parser.prototype.error = function(error) {
     var msg = 'ERROR: ' + error + '\n';
     msg += this.input.where();
 
-    throw new Error(msg);
+    throw msg;
 };
 
 //  Этот метод нужен для того, чтобы показать,
