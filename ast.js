@@ -40,17 +40,21 @@ AST.prototype.make = function(id, params) {
 //  ---------------------------------------------------------------------------------------------------------------  //
 
 AST.prototype.childrenKeys = function() {
-    var keys = [];
+    var keys = this.__childrenKeys;
 
-    var order = this.options.order;
-    if (order) {
-        for (var i = 0, l = order.length; i < l; i++) {
-            keys.push(order[i]);
-        }
-    } else {
-        for (var key in this) {
-            if (this.hasOwnProperty(key) && /^[A-Z]/.test(key)) {
-                keys.push(key);
+    if (!keys) {
+        keys = this.__childrenKeys = [];
+
+        var order = this.options.order;
+        if (order) {
+            for (var i = 0, l = order.length; i < l; i++) {
+                keys.push(order[i]);
+            }
+        } else {
+            for (var key in this) {
+                if (this.hasOwnProperty(key) && /^[A-Z]/.test(key)) {
+                    keys.push(key);
+                }
             }
         }
     }
