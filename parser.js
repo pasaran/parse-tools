@@ -26,6 +26,7 @@ Parser.prototype.read = function(filename) {
 
 Parser.prototype.parse = function(filename, rule) {
     this.read(filename);
+
     return this.match(rule);
 };
 
@@ -46,21 +47,27 @@ Parser.prototype.makeAST = function(id) {
 //  Errors
 //  ---------------------------------------------------------------------------------------------------------------  //
 
-Parser.prototype.error = function(error) {
-    error = error || 'Unknown error';
-
-    var msg = 'ERROR: ' + error + '\n';
-    msg += this.input.where();
-
-    throw msg;
+Parser.prototype.error = function(msg) {
+    throw new Parser.Error( msg || 'Unknown error', this.input.getPos() );
 };
 
 //  Этот метод нужен для того, чтобы показать,
 //  что правило не смогло правильно сматчиться и нужно делать backtrace.
-Parser.prototype.backtrace = function(error) {
-    error = error || this.id + ' expected';
+Parser.prototype.backtrace = function() {
+    throw 'backtrace()';
+};
 
-    throw 'PARSE ERROR: ' + error;
+Parser.Error = function(msg, pos) {
+    this.msg = msg;
+    this.pos = pos;
+};
+
+Parser.Error.prototype.toString = function() {
+    var s = 'ERROR: ' + this.msg + '\n';
+    var pos = this.pos;
+    s += pos.input.where(pos);
+
+    return s;
 };
 
 //  ---------------------------------------------------------------------------------------------------------------  //
@@ -165,7 +172,7 @@ Parser.prototype.matchAny = function(ids) {
         }
     }
 
-    this.error('Nothing matched');
+    this.error( 'Expected: ' + ids.join(', ') );
 };
 
 //  ---------------------------------------------------------------------------------------------------------------  //
