@@ -20,7 +20,8 @@ AST.prototype.options = {};
 //  ---------------------------------------------------------------------------------------------------------------  //
 
 AST.prototype.error = function(s) {
-    var pos = this.where;
+    //  FIXME: У ast, созданных при помощи ast.factory.make нет поля where.
+    var pos = this.where || this.parent.where;
     throw new Error( 'ERROR: ' + s + '\n' + pos.input.where(pos) );
 };
 
