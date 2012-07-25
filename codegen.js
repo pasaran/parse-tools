@@ -197,8 +197,7 @@ Codegen.prototype._doMacro = function(macro, data) {
     var r = /^(\s*)%{\s*(\.|[\w-]+(?:\.[\w-]+)*)(\(\))?\s*(?::([\w-]+))?\s*}$/.exec(macro);
 
     if (!r) {
-        console.log('MACRO ERROR', macro);
-        return '';
+        throw new Error('MACRO ERROR: ' + macro);
     }
 
     var spaces = r[1];
