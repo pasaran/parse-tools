@@ -15,9 +15,14 @@ var Factory = function(base, asts) {
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
-Factory.prototype.make = function(id, params) {
+Factory.prototype.make = function(id, where, params) {
     var ctor = this.get(id);
     var ast = new ctor();
+    //  Место, где будут храниться все properties, создаваемых парсером.
+    ast.p = {};
+    //  Место для различных флагов, которые будут создаваться при обходе дерева.
+    ast.f = {};
+    ast.where = where;
     ast._init(params);
 
     return ast;

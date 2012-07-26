@@ -37,10 +37,7 @@ Parser.prototype.subparser = function() {
 //  ---------------------------------------------------------------------------------------------------------------  //
 
 Parser.prototype.makeAST = function(id) {
-    var ast = this.factory.make(id);
-    ast.where = this.input.getPos();
-
-    return ast;
+    return this.factory.make( id, this.input.getPos() );
 };
 
 //  ---------------------------------------------------------------------------------------------------------------  //

@@ -20,23 +20,19 @@ AST.prototype.options = {};
 //  ---------------------------------------------------------------------------------------------------------------  //
 
 AST.prototype.error = function(s) {
-    //  FIXME: У ast, созданных при помощи ast.factory.make нет поля where.
-    var pos = this.where || this.parent.where;
+    var pos = this.where;
     throw new Error( 'ERROR: ' + s + '\n' + pos.input.where(pos) );
 };
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
+//  FIXME: Этот базовый метод в таком виде не используется вообще.
+//  Он полностью перекрыт в yate/lib/ast.js.
+/*
 AST.prototype.make = function(id, params) {
-    var ast = this.factory.make(id, params);
-    ast.parent = this;
-    /*
-    ast.setScope();
-    ast.Rid = this.Rid;
-    ast.Cid = this.Cid;
-    */
-    return ast;
+    return this.factory.make(id, this.where, params);
 };
+*/
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
