@@ -103,7 +103,7 @@ Grammar.prototype.makeRule = function(id, rule, options) {
         var skipper = this.setSkipper(options.skipper);
 
         var ast = this.makeAST(id);
-        var r = rule.call(this, ast, params);
+        var r = rule.call(this, ast.p, ast, params);
 
         this.setSkipper(skipper);
 
