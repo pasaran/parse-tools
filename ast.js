@@ -43,38 +43,14 @@ AST.prototype.make = function(id, params) {
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
-AST.prototype.childrenKeys = function() {
-    var keys = this.__childrenKeys;
-
-    if (!keys) {
-        keys = this.__childrenKeys = [];
-
-        var order = this.options.order;
-        if (order) {
-            for (var i = 0, l = order.length; i < l; i++) {
-                keys.push(order[i]);
-            }
-        } else {
-            for (var key in this) {
-                if (this.hasOwnProperty(key) && /^[A-Z]/.test(key)) {
-                    keys.push(key);
-                }
-            }
-        }
-    }
-
-    return keys;
-};
-
 AST.prototype.children = function() {
     var children = [];
 
-    var keys = this.childrenKeys();
-    for (var i = 0, l = keys.length; i < l; i++) {
-        var key = keys[i];
-        var child = this[key];
+    var props = this.p;
+    for (var key in props) {
+        var child = props[key];
         if (child !== undefined) {
-            children.push( this[key] );
+            children.push(child);
         }
     }
 
@@ -92,10 +68,9 @@ AST.prototype.applyChildren = function(callback, params) {
 };
 
 AST.prototype.walkAfter = function(callback, params, pKey, pObject) {
-    var keys = this.childrenKeys();
-    for (var i = 0, l = keys.length; i < l; i++) {
-        var key = keys[i];
-        var child = this[key];
+    var props = this.p;
+    for (var key in props) {
+        var child = props[key];
         if (child instanceof AST) {
             child.walkAfter(callback, params, key, this);
         }
@@ -107,10 +82,9 @@ AST.prototype.walkAfter = function(callback, params, pKey, pObject) {
 AST.prototype.walkBefore = function(callback, params, pKey, pObject) {
     callback(this, params, pKey, pObject);
 
-    var keys = this.childrenKeys();
-    for (var i = 0, l = keys.length; i < l; i++) {
-        var key = keys[i];
-        var child = this[key];
+    var props = this.p;
+    for (var key in props) {
+        var child = props[key];
         if (child instanceof AST) {
             child.walkBefore(callback, params, key, this);
         }
@@ -144,10 +118,9 @@ AST.prototype.is = function(type) {
 
 AST.prototype.toString = function() {
     var r = [];
-    var keys = this.childrenKeys();
-    for (var i = 0, l = keys.length; i < l; i++) {
-        var key = keys[i];
-        var child = this[key];
+    var props = this.p;
+    for (var key in props) {
+        var child = props[key];
         if (child !== undefined) {
             if (child instanceof AST) {
                 var s = child.toString();

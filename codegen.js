@@ -66,7 +66,7 @@ Codegen.prototype._readTemplates = function(filename) {
         if (predicate) {
             predicate = predicate.slice(1, -1);
             //  Отрезаем '[' и ']'.
-            predicate = new Function( 'return !!(' + predicate + ');' );
+            predicate = new Function('a', 'p', 'f', 'console.log(p); return !!(' + predicate + ');' );
         }
 
         //  Убираем отступ и переводы строк.
@@ -86,8 +86,8 @@ Codegen.prototype._readTemplates = function(filename) {
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
-//  Находим подходящий шаблон, соответствующий паре name/mode. И заполняем его данными из data.
-Codegen.prototype.generate = function(name, data, mode) {
+//  Находим подходящий шаблон, соответствующий паре name/mode. И заполняем его данными из ast.
+Codegen.prototype.generate = function(name, ast, mode) {
     var suffix = ':' + (mode || '');
 
     //  Берем все шаблоны для foo:bar и для *:bar
@@ -97,7 +97,7 @@ Codegen.prototype.generate = function(name, data, mode) {
 
     //  Применяем первый подходящий (вернувший что-нибудь) шаблон.
     for (var i = 0, l = templates.length; i < l; i++) {
-        var r = this._doTemplate( templates[i], data );
+        var r = this._doTemplate( templates[i], ast );
         if (r !== undefined) { return r; }
     }
 };
@@ -105,11 +105,11 @@ Codegen.prototype.generate = function(name, data, mode) {
 //  ---------------------------------------------------------------------------------------------------------------  //
 
 //  Собственно код, который заполняет шаблон данными.
-Codegen.prototype._doTemplate = function(template, data) {
+Codegen.prototype._doTemplate = function(template, ast) {
 
     //  Если есть предикат, проверяем его истинность.
     var predicate = template.predicate;
-    if ( predicate && !predicate.call(data) ) {
+    if ( predicate && !predicate(ast, ast.p, ast.f) ) {
         return;
     }
 
@@ -137,7 +137,7 @@ Codegen.prototype._doTemplate = function(template, data) {
         line = r[2];
 
         //  Раскрываем макросы в строке.
-        line = this._doLine(line, data);
+        line = this._doLine(line, ast);
         if (!line) {
             //  Строка после раскрытия всех макросов стала пустой.
             //  Пропускаем ее и все проследующие пустые строки.
@@ -172,18 +172,18 @@ Codegen.prototype._doTemplate = function(template, data) {
 
 //  Раскрываем макросы в строке. Макросы начинаются символом % и дальше более-менее похожи на xpath/jpath. Варианты:
 //
-//      %{ Foo }        -- если data.Foo это скаляр, то вывести его, если это объект, то вызвать метод data.Foo.code(lang).
-//      %{ Foo :mode }  -- тоже самое, но в code передается еще и mode: data.Foo.code(lang, mode).
-//      %{ Foo.Bar }    -- тоже самое, но про data.Foo.Bar.
-//      %{ . :mode }    -- обработать эту же data еще раз, но с другой модой.
-//      %{ foo() }      -- результат data.foo().
-//      %{ Foo.bar() }  -- результат data.Foo.bar() (в предположении, что data.Foo объект).
+//      %{ Foo }        -- если ast.Foo это скаляр, то вывести его, если это объект, то вызвать метод ast.p.Foo.code(lang).
+//      %{ Foo :mode }  -- тоже самое, но в code передается еще и mode: ast.p.Foo.code(lang, mode).
+//      %{ Foo.Bar }    -- тоже самое, но про ast.p.Foo.p.Bar.
+//      %{ . :mode }    -- обработать этот же ast еще раз, но с другой модой.
+//      %{ foo() }      -- результат ast.foo().
+//      %{ Foo.bar() }  -- результат ast.p.Foo.bar() (в предположении, что ast.p.Foo объект).
 //
-Codegen.prototype._doLine = function(line, data) {
+Codegen.prototype._doLine = function(line, ast) {
     var r = line.split(/(\s*%{.*?})/);
 
     for (var i = 1, l = r.length; i < l; i += 2) {
-        r[i] = this._doMacro(r[i], data);
+        r[i] = this._doMacro(r[i], ast);
     }
 
     return r.join('')
@@ -193,7 +193,7 @@ Codegen.prototype._doLine = function(line, data) {
 
 }
 
-Codegen.prototype._doMacro = function(macro, data) {
+Codegen.prototype._doMacro = function(macro, ast) {
     var r = /^(\s*)%{\s*(\.|[\w-]+(?:\.[\w-]+)*)(\(\))?\s*(?::([\w-]+))?\s*}$/.exec(macro);
 
     if (!r) {
@@ -209,12 +209,12 @@ Codegen.prototype._doMacro = function(macro, data) {
         call = path.pop();
     }
 
-    //  Вычисляем path относительно data (например, 'foo.bar' -> data.foo.bar).
-    var value = data;
+    //  Вычисляем path относительно ast (например, 'Foo.Bar' -> ast.p.Foo.p.Bar).
+    var value = ast;
     var step;
     while ( value && (( step = path.shift() )) ) {
         if (step !== '.') {
-            value = value[step];
+            value = value.p[step];
         }
     }
     if (value === undefined) { value = ''; }
