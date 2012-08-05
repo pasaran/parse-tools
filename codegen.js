@@ -66,7 +66,7 @@ Codegen.prototype._readTemplates = function(filename) {
         if (predicate) {
             predicate = predicate.slice(1, -1);
             //  Отрезаем '[' и ']'.
-            predicate = new Function('a', 'p', 'f', 'console.log(p); return !!(' + predicate + ');' );
+            predicate = new Function('a', 'p', 'f', 'return !!(' + predicate + ');' );
         }
 
         //  Убираем отступ и переводы строк.

@@ -16,6 +16,8 @@ AST.prototype._init = function() {};
 
 AST.prototype._initProps = function() {
     this.p = {};
+    this.p.Rid = 0;
+    this.p.Cid = 0;
     this.f = {};
 };
 
