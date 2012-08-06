@@ -73,8 +73,8 @@ AST.prototype.walkAfter = function(callback, params, pKey, pObject) {
     var props = this.p;
     for (var key in props) {
         var child = props[key];
-        if (child instanceof AST) {
-            child.walkAfter(callback, params, key, this);
+        if (child && typeof child === 'object') {
+            child.walkAfter(callback, params, key, props);
         }
     }
 
@@ -87,8 +87,8 @@ AST.prototype.walkBefore = function(callback, params, pKey, pObject) {
     var props = this.p;
     for (var key in props) {
         var child = props[key];
-        if (child instanceof AST) {
-            child.walkBefore(callback, params, key, this);
+        if (child && typeof child === 'object') {
+            child.walkBefore(callback, params, key, props);
         }
     }
 };
