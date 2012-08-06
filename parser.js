@@ -8,17 +8,14 @@ var InputStream = require('./inputstream.js');
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
-var Parser = function(grammar, factory, _cwd) {
+var Parser = function(grammar, factory) {
     this.grammar = grammar;
     this.factory = factory;
-
-    this.cwd = _cwd || process.cwd();
 };
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
 Parser.prototype.read = function(filename) {
-    filename = path_.join(this.cwd, filename);
     this.input = new InputStream(filename);
     this.skipper = null;
     this.cache = {};

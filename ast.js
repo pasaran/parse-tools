@@ -14,15 +14,6 @@ AST.prototype._init = function() {};
 
 //  ---------------------------------------------------------------------------------------------------------------  //
 
-AST.prototype._initProps = function() {
-    this.p = {};
-    this.p.Rid = 0;
-    this.p.Cid = 0;
-    this.f = {};
-};
-
-//  ---------------------------------------------------------------------------------------------------------------  //
-
 //  FIXME: А это зачем?
 AST.prototype.options = {};
 
@@ -73,7 +64,8 @@ AST.prototype.walkAfter = function(callback, params, pKey, pObject) {
     var props = this.p;
     for (var key in props) {
         var child = props[key];
-        if (child && typeof child === 'object') {
+        //  FIXME: Нельзя ли заменить это на typeof?
+        if (child instanceof AST) {
             child.walkAfter(callback, params, key, props);
         }
     }
@@ -87,7 +79,8 @@ AST.prototype.walkBefore = function(callback, params, pKey, pObject) {
     var props = this.p;
     for (var key in props) {
         var child = props[key];
-        if (child && typeof child === 'object') {
+        //  FIXME: Нельзя ли заменить это на typeof?
+        if (child instanceof AST) {
             child.walkBefore(callback, params, key, props);
         }
     }
