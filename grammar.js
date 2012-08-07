@@ -107,7 +107,7 @@ Grammar.prototype.makeRule = function(id, rule, options) {
 
         this.setSkipper(skipper);
 
-        return (r || ast);
+        return (r === undefined) ? ast : r;
     };
 
     return wrapper;
