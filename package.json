@@ -6,7 +6,7 @@
     },
     "name": "parse-tools",
     "description": "Modules for parsing and code generation.",
-    "version": "0.0.13",
+    "version": "0.0.14",
     "homepage": "https://github.com/pasaran/parse-tools",
     "repository": {
         "type": "git",
@@ -15,9 +15,12 @@
     "engines": {
         "node": "*"
     },
-    "main": "parse-tools",
+    "dependencies": {
+        "no.base": "0.0.3",
+        "no.colors": "0.0.1"
+    },
+    "main": "lib/index.js",
     "files": [
-        "lib",
-        "parse-tools.js"
+        "lib"
     ]
 }
