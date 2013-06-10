@@ -16,7 +16,7 @@
         "node": "*"
     },
     "dependencies": {
-        "no.base": "0.0.3",
+        "nommon": "0.0.19",
         "no.colors": "0.0.1"
     },
     "main": "lib/index.js",
